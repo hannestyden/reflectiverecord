@@ -1,0 +1,4 @@
+reflectiverecord
+================
+
+Smarter ActiveRecord models
