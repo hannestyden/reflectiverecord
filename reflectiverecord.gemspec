@@ -8,6 +8,8 @@ Gem::Specification.new do |gem|
   gem.summary       = %q{ReflectiveRecord makes ActiveRecord objects expose their attributes explicitly, rendering the database schema irrelevant and adding a number of powerful Rake tasks to automate database migrations.}
   gem.homepage      = "https://github.com/workhub"
 
+  gem.add_development_dependency 'rspec'
+
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
