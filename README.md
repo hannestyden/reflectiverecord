@@ -7,7 +7,7 @@ A ReflectiveRecord object looks like this:
 
 ```ruby
 class Article < ActiveRecord::Base
-  extend ReflectiveRecord::Attributes
+  extend ReflectiveRecord::Extensions
 
   has_string :title
   has_string :category, null: false, default: 'Uncategorized'
@@ -107,6 +107,6 @@ Add the filter option to your attribute definition to add it to ```config.filter
 
 * **Combine attribute definitions and validations.**
 Use one single line for your attribute definitions and ActiveRecord validations using the inline validation option:
-```
+```ruby
   has_string :title, validates: { presence: true, length: { maximum: 80 } }
 ```
