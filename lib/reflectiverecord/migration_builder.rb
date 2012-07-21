@@ -6,6 +6,18 @@ require 'active_support/inflector'
 module ReflectiveRecord
   class MigrationBuilder
 
+    def table_migration(model_name, attributes, drop_table=false)
+      create_instruction = create_table_instruction model_name, attributes
+      drop_instruction = drop_table_instruction model_name
+      up_or_down_migration create_instruction, drop_instruction, drop_table
+    end
+
+    def column_migration(model_name, attribute_name, attribute_description, remove_column=false)
+      add_instruction = add_column_instruction model_name, attribute_name, attribute_description
+      remove_instruction = remove_column_instruction model_name, attribute_name
+      up_or_down_migration add_instruction, remove_instruction, remove_column
+    end
+
     def migrations_from_schema_variation(source_schema, target_schema, additions={}, removals={})
       migrations = []
       { false => additions, true => removals }.each do |reverse, changes|
@@ -22,16 +34,14 @@ module ReflectiveRecord
       migrations
     end
 
-    def table_migration(model_name, attributes, drop_table=false)
-      create_instruction = create_table_instruction model_name, attributes
-      drop_instruction = drop_table_instruction model_name
-      up_or_down_migration create_instruction, drop_instruction, drop_table
-    end
-
-    def column_migration(model_name, attribute_name, attribute_description, remove_column=false)
-      add_instruction = add_column_instruction model_name, attribute_name, attribute_description
-      remove_instruction = remove_column_instruction model_name, attribute_name
-      up_or_down_migration add_instruction, remove_instruction, remove_column
+    def migration_class_name(model_names=[], sequence_number=1)
+      model_names.map!(&:to_s).map!(&:pluralize).map!(&:camelize)
+      if model_names.count > 3
+        model_names = model_names[0..2] + ["#{model_names.count-3}More"]
+      elsif model_names.count == 0
+        model_names = ['Nothing']
+      end
+      "Migrate#{model_names.join('And')}_#{'%05d' % sequence_number}"
     end
 
     def migration_class_definition(class_name, migrations=[])
@@ -39,6 +49,10 @@ module ReflectiveRecord
       migration += up_instruction migrations
       migration += down_instruction migrations
       migration += "end\n"
+    end
+
+    def migration_file_name(model_names=[], sequence_number=1)
+      migration_timestamp + '_' + migration_class_name(model_names, sequence_number).tableize.chop + '.rb'
     end
 
     private
@@ -89,6 +103,10 @@ module ReflectiveRecord
       options_string = ""
       options.each { |option_name, option_value| options_string += ", :#{option_name} => #{option_value}" }
       options_string
+    end
+
+    def migration_timestamp
+      @migration_timestamp ||= Time.now.strftime("%Y%m%d%H%M%S")
     end
 
   end
