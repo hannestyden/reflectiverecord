@@ -1,5 +1,5 @@
-Smarter ActiveRecord models
-===========================
+ReflectiveRecord — Smarter ActiveRecord models
+==============================================
 
 ReflectiveRecord makes ActiveRecord objects expose their attributes explicitly, rendering the database schema irrelevant and adding a number of powerful Rake tasks to automate database migrations.
 
