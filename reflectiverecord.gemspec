@@ -10,6 +10,7 @@ Gem::Specification.new do |gem|
 
   gem.add_runtime_dependency 'activerecord', '>= 3.0.0'
   gem.add_development_dependency 'rspec'
+  gem.add_development_dependency 'bcrypt-ruby'
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
