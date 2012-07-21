@@ -16,6 +16,8 @@ module ReflectiveRecord
       instance_variable_set :@reflective_attributes, reflective_attributes
     end
 
+    alias_method :has_attribute, :attribute
+
     module PostExtension
       def belongs_to(model_name, options={})
         super model_name, options
