@@ -1,4 +1,5 @@
-require "reflectiverecord/version"
+require 'reflectiverecord/version'
 require 'active_record'
 
 require "reflectiverecord/extensions"
+require "reflectiverecord/railtie" if defined?(Rails)
