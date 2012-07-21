@@ -213,6 +213,12 @@ EOF
       end
     end
 
+    context "given just one model name" do
+      it "uses just that model name in the class name" do
+        migration_builder.migration_class_name([:article]).should == 'MigrateArticles_00001'
+      end
+    end
+
     context "given up to three model names" do
       it "uses these model names in the class name" do
         migration_builder.migration_class_name([:user, :project, :organization]).should == 'MigrateUsersAndProjectsAndOrganizations_00001'
