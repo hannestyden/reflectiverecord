@@ -44,7 +44,7 @@ describe ReflectiveRecord::SchemaBuilder::ActiveRecord do
       built_schema[:another_active_record_test_model].keys.should include(:created_at, :updated_at)
     end
 
-    describe "reflective attribute format" do
+    describe "attribute format" do
       it "has type and options" do
         built_schema[:active_record_test_model][:number].keys.should =~ [:type, :options]
       end
