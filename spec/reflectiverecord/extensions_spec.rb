@@ -20,7 +20,6 @@ class TestModel < ActiveRecord::Base
 end
 
 describe ReflectiveRecord::Extensions do
-
   let(:reflective_attributes) { TestModel.instance_variable_get(:@reflective_attributes) }
 
   it "recognizes string attributes" do
