@@ -11,7 +11,7 @@ module ReflectiveRecord
 
       def active_record_model_names
         model_files = Dir["#{@model_directory}/**/*.rb"]
-        model_files.map{ |path| path[/[^\/]+(?=\.rb$)/] }.map(&:to_sym)
+        model_files.map{ |path| path[/[^\/]+(?=\.rb$)/] if (IO.read(path) =~ /<\s*ActiveRecord::Base/) }.compact.map(&:to_sym)
       end
 
       def build_schema_from_model_names(model_names)

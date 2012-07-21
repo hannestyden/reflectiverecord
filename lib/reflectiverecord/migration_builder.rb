@@ -25,7 +25,14 @@ module ReflectiveRecord
               migrations << column_migration(model_name, attribute_name, attribute_description, reverse)
             end
           else
-            migrations << table_migration(model_name, attributes, reverse)
+            # This condition prevents the modification of tables added by other gems.
+            prevent_migration = ActiveRecord::Base.respond_to?(:subclasses) &&
+                                !!Rails.application.eager_load! &&
+                                (ActiveRecord::Base.subclasses.map(&:table_name).include?(model_name.to_s.tableize) ||
+                                 ActiveRecord::Base.subclasses.map(&:model_name).any?{ |model| model.constantize.reflect_on_all_associations.any?{ |association| association.plural_name == model_name.to_s.pluralize } })
+            unless prevent_migration
+              migrations << table_migration(model_name, attributes, reverse)
+            end
           end
         end
       end

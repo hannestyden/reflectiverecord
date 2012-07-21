@@ -22,8 +22,22 @@ describe ReflectiveRecord::SchemaBuilder::ActiveRecord do
       schema_builder.active_record_model_names
     end
 
+    it "reads the ActiveRecord model files to check whether they are indeed ActiveRecord::Base subclasses" do
+      Dir.stub(:[]).and_return ['/some/path/to/first.rb', '/some/other/path/to/second_model.rb']
+      IO.should_receive(:read).with('/some/path/to/first.rb')
+      IO.should_receive(:read).with('/some/other/path/to/second_model.rb')
+      schema_builder.active_record_model_names
+    end
+
+    it "excludes models which are not subclasses of ActiveRecord::Base" do
+      Dir.stub(:[]).and_return ['/some/path/to/first.rb', '/some/other/path/to/second_model.rb']
+      IO.stub(:read).and_return ''
+      schema_builder.active_record_model_names.should == []
+    end
+
     it "returns all ActiveRecord model names as symbols" do
       Dir.stub(:[]).and_return ['/some/path/to/first.rb', '/some/other/path/to/second_model.rb']
+      IO.stub(:read).and_return 'Class < ActiveRecord::Base'
       schema_builder.active_record_model_names.should == [:first, :second_model]
     end
   end
