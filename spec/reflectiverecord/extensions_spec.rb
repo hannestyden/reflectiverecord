@@ -1,6 +1,6 @@
 require File.expand_path('../../../lib/reflectiverecord.rb', __FILE__)
 
-class TestModel < ActiveRecord::Base
+class ExtensionsTestModel < ActiveRecord::Base
   extend ReflectiveRecord::Extensions
 
   attribute :name, :string, null: false, default: 'text'
@@ -20,7 +20,7 @@ class TestModel < ActiveRecord::Base
 end
 
 describe ReflectiveRecord::Extensions do
-  let(:reflective_attributes) { TestModel.instance_variable_get(:@reflective_attributes) }
+  let(:reflective_attributes) { ExtensionsTestModel.instance_variable_get(:@reflective_attributes) }
 
   it "recognizes string attributes" do
     reflective_attributes[:name][:type].should be(:string)
