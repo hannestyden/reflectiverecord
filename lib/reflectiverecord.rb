@@ -1,4 +1,4 @@
 require "reflectiverecord/version"
+require 'active_record'
 
-module ReflectiveRecord
-end
+require "reflectiverecord/extensions"
