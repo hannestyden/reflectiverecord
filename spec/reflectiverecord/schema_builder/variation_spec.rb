@@ -58,4 +58,17 @@ describe ReflectiveRecord::SchemaBuilder::Variation do
     end
   end
 
+  describe "#removals" do
+    it "returns a hash with the added models and attributes" do
+      variation.removals.should == {
+        user: {
+          age: {
+            :type => :integer,
+            :options => {}
+          }
+        }
+      }
+    end
+  end
+
 end
