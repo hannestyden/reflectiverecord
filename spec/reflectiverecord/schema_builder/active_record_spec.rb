@@ -1,9 +1,5 @@
 require File.expand_path('../../../../lib/reflectiverecord.rb', __FILE__)
 
-class Rails
-  def self.root; '/some/path'; end
-end
-
 class ActiveRecordTestModel < ActiveRecord::Base
   extend ReflectiveRecord::Extensions
 
@@ -18,11 +14,11 @@ class AnotherActiveRecordTestModel < ActiveRecord::Base
 end
 
 describe ReflectiveRecord::SchemaBuilder::ActiveRecord do
-  let(:schema_builder) { ReflectiveRecord::SchemaBuilder::ActiveRecord.new }
+  let(:schema_builder) { ReflectiveRecord::SchemaBuilder::ActiveRecord.new('/some/path/to/models') }
 
   describe "#active_record_model_names" do
     it "calls Dir[] with the correct path to ActiveRecord models" do
-      Dir.should_receive(:[]).with('/some/path/app/models/**/*.rb').and_return []
+      Dir.should_receive(:[]).with('/some/path/to/models/**/*.rb').and_return []
       schema_builder.active_record_model_names
     end
 

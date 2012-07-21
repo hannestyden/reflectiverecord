@@ -5,8 +5,12 @@ module ReflectiveRecord
   module SchemaBuilder
     class ActiveRecord
 
+      def initialize(model_directory)
+        @model_directory = model_directory
+      end
+
       def active_record_model_names
-        model_files = Dir["#{Rails.root}/app/models/**/*.rb"]
+        model_files = Dir["#{@model_directory}/**/*.rb"]
         model_files.map{ |path| path[/[^\/]+(?=\.rb$)/] }.map(&:to_sym)
       end
 
