@@ -10,6 +10,12 @@ module ReflectiveRecord
       up_or_down_migration create_instruction, drop_instruction, drop_table
     end
 
+    def column_migration(model_name, attribute_name, attribute_description, remove_column=false)
+      add_instruction = add_column_instruction model_name, attribute_name, attribute_description
+      remove_instruction = remove_column_instruction model_name, attribute_name
+      up_or_down_migration add_instruction, remove_instruction, remove_column
+    end
+
     private
 
     def create_table_instruction(model_name, attributes)
@@ -23,6 +29,15 @@ module ReflectiveRecord
 
     def drop_table_instruction(model_name)
       "    drop_table :#{model_name.to_s.tableize}\n"
+    end
+
+    def add_column_instruction(model_name, attribute_name, attribute_description)
+      formatted_options = format_options attribute_description[:options]
+      "    add_column :#{model_name.to_s.tableize}, :#{attribute_name}, :#{attribute_description[:type]}#{formatted_options}\n"
+    end
+
+    def remove_column_instruction(model_name, attribute_name)
+      "    remove_column :#{model_name.to_s.tableize}, :#{attribute_name}\n"
     end
 
     def up_or_down_migration(up_instruction, down_instruction, reverse_migration=false)

@@ -43,4 +43,30 @@ EOF
     end
   end
 
+  describe "#column_migration" do
+    let(:attribute_description) { Hash[:type => :string, :options => { null: 'false' }] }
+
+    let(:add_column_migration) do <<EOF
+    add_column :some_models, :title, :string, :null => false
+EOF
+    end
+
+    let(:remove_column_migration) do <<EOF
+    remove_column :some_models, :title
+EOF
+    end
+
+    describe "adding a column" do
+      let (:column_migration) { migration_builder.column_migration(:some_model, :title, attribute_description) }
+
+      it "builds the correct up migration" do
+        column_migration[:up].should == add_column_migration
+      end
+
+      it "builds the correct down migration" do
+        column_migration[:down].should == remove_column_migration
+      end
+    end
+  end
+
 end
