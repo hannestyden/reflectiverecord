@@ -8,10 +8,13 @@ class TestModel < ActiveRecord::Base
 
   has_attribute :title, :string
 
-  belongs_to :other, class_name: 'OtherClass'
-  belongs_to :polymorphic_target, polymorphic: true
+  has_decimal :amount
+  has_integer :count, null: false
 
-  serialize :complex_property, Object, null: false, default: {}
+  belongs_to :associated, class_name: 'OtherModel'
+  belongs_to :polymorphic, polymorphic: true
+
+  serialize :complex, Object, null: false, default: {}
 
   has_secure_password
 end
@@ -36,20 +39,28 @@ describe ReflectiveRecord::Extensions do
     reflective_attributes[:title][:type].should be(:string)
   end
 
+  it "recognizes dynamic attribute type definitions" do
+    reflective_attributes[:amount][:type].should be(:decimal)
+  end
+
+  it "recognizes and stringifies options with dynamic attribute type definitions" do
+    reflective_attributes[:count][:options].should == { null: 'false' }
+  end
+
   it "recognizes belongs_to relationships" do
-    reflective_attributes[:other_id][:type].should be(:integer)
+    reflective_attributes[:associated_id][:type].should be(:integer)
   end
 
   it "recognizes polymorphic relationships" do
-    reflective_attributes[:polymorphic_target_type][:type].should be(:string)
+    reflective_attributes[:polymorphic_type][:type].should be(:string)
   end
 
   it "recognizes serialized attributes" do
-    reflective_attributes[:complex_property][:type].should be(:text)
+    reflective_attributes[:complex][:type].should be(:text)
   end
 
   it "recognizes and stringifies options with serialized attributes" do
-    reflective_attributes[:complex_property][:options].should == { null: 'false', default: '{}' }
+    reflective_attributes[:complex][:options].should == { null: 'false', default: '{}' }
   end
 
   it "recognizes secure password attributes" do
@@ -57,11 +68,11 @@ describe ReflectiveRecord::Extensions do
   end
 
   it "ignores options with belongs_to relationships" do
-    reflective_attributes[:other_id][:options].should be_empty
+    reflective_attributes[:associated_id][:options].should be_empty
   end
 
   it "includes the right number of attributes" do
-    reflective_attributes.count.should be(8)
+    reflective_attributes.count.should be(10)
   end
 
 end
