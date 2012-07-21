@@ -3,6 +3,7 @@ PATH
   specs:
     reflectiverecord (0.1.0)
       activerecord (>= 3.0.0)
+      activesupport (>= 3.0.0)
 
 GEM
   remote: https://rubygems.org/
