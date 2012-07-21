@@ -75,24 +75,29 @@ Usage and Features
 ReflectiveRecord lets you work with smarter ActiveRecord models.
 
 * **Write self-contained ActiveRecord models.**
-No more peeking at ```schema.rb```. ReflectiveRecord objects expose their attributes explicitly within the model file.
+
+  No more peeking at ```schema.rb```. ReflectiveRecord objects expose their attributes explicitly within the model file.
 
 * **Use powerful Rake tasks to automate migrations.**
-Use ```rake db:status``` to see schema changes.
-Use ```rake db:update``` to migrate to the updated schema version.
-Use ```rake db:update --rebuild``` to merge schema changes into the previous migration and re-migrate.
+
+  * Use ```rake db:status``` to see schema changes.
+  * Use ```rake db:update``` to migrate to the updated schema version.
+  * Use ```rake db:update --rebuild``` to merge schema changes into the previous migration and re-migrate.
 
 * **Let database indexes be generated automatically.**
-ReflectiveRecord makes educated guesses about which tables need indexing. It scans your model files for foreign keys and database queries and adds appropriate indexes automatically.
+
+  ReflectiveRecord makes educated guesses about which tables need indexing. It scans your model files for foreign keys and database queries and adds appropriate indexes automatically.
 
 * **Use table row options right in your attribute definition.**
-Just include them as you would in your migration or schema file:
+
+  Just include them as you would in your migration or schema file:
 ```ruby
   has_integer :magic_number, null: false, default: 42
 ```
 
 * **Be flexible in your attribute definitions.**
-The following attribute definitions are all equivalent:
+
+  The following attribute definitions are all equivalent:
 ```ruby
   has_text :description
   has_attribute :description, :text
@@ -100,13 +105,15 @@ The following attribute definitions are all equivalent:
 ```
 
 * **Use automatic parameter filters for sensitive attributes.**
-Add the filter option to your attribute definition to add it to ```config.filter_parameters```:
+
+  Add the filter option to your attribute definition to add it to ```config.filter_parameters```:
 ```ruby
   has_string :password, filter: true
 ```
 
 * **Combine attribute definitions and validations.**
-Use one single line for your attribute definitions and ActiveRecord validations using the inline validation option:
+
+  Use one single line for your attribute definitions and ActiveRecord validations using the inline validation option:
 ```ruby
   has_string :title, validates: { presence: true, length: { maximum: 80 } }
 ```
