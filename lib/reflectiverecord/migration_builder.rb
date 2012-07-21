@@ -1,8 +1,26 @@
 #
 # Automates ActiveRecord migrations.
 #
+require 'active_support/inflector'
+
 module ReflectiveRecord
   class MigrationBuilder
+
+    def migrations_from_schema_variation(source_schema, target_schema, additions={}, removals={})
+      migrations = []
+      { false => additions, true => removals }.each do |reverse, changes|
+        changes.each do |model_name, attributes|
+          if source_schema[model_name]
+            attributes.each do |attribute_name, attribute_description|
+              migrations << column_migration(model_name, attribute_name, attribute_description, reverse)
+            end
+          else
+            migrations << table_migration(model_name, attributes, reverse)
+          end
+        end
+      end
+      migrations
+    end
 
     def table_migration(model_name, attributes, drop_table=false)
       create_instruction = create_table_instruction model_name, attributes
