@@ -95,7 +95,7 @@ describe ReflectiveRecord::SchemaMigrator do
 
   describe "#migration_contents" do
     let(:empty_contents) do <<EOF
-class MigrateNothing_00004 < ActiveRecord::Migration
+class MigrateNothingNo00004 < ActiveRecord::Migration
   def up
   end
 
@@ -121,7 +121,7 @@ EOF
       let(:down_migration) { migration.gsub(/\A.*def down/, '') }
 
       it "names the migration correctly" do
-        migration.should match(/class MigratePeopleAndCarsAndWheelsAnd1More_00004/)
+        migration.should match(/class MigratePeopleAndCarsAndWheelsAndMoreNo00004/)
       end
 
       it "recognizes table additions in up part" do

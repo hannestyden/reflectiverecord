@@ -35,11 +35,11 @@ module ReflectiveRecord
     def migration_class_name(model_names=[], sequence_number=1)
       model_names.map!(&:to_s).map!(&:pluralize).map!(&:camelize)
       if model_names.count > 3
-        model_names = model_names[0..2] + ["#{model_names.count-3}More"]
+        model_names = model_names[0..2] + ["More"]
       elsif model_names.count == 0
         model_names = ['Nothing']
       end
-      "Migrate#{model_names.join('And')}_#{'%05d' % sequence_number}"
+      "Migrate#{model_names.join('And')}No#{'%05d' % sequence_number}"
     end
 
     def migration_class_definition(class_name, migrations=[])

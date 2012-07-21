@@ -203,31 +203,31 @@ EOF
   describe "#migration_class_name" do
     context "given no model names and no sequence number" do
       it "returns the correct class name" do
-        migration_builder.migration_class_name.should == 'MigrateNothing_00001'
+        migration_builder.migration_class_name.should == 'MigrateNothingNo00001'
       end
     end
 
     context "given no model names and a sequence number" do
       it "uses that sequence number correctly" do
-        migration_builder.migration_class_name([], 423).should == 'MigrateNothing_00423'
+        migration_builder.migration_class_name([], 423).should == 'MigrateNothingNo00423'
       end
     end
 
     context "given just one model name" do
       it "uses just that model name in the class name" do
-        migration_builder.migration_class_name([:article]).should == 'MigrateArticles_00001'
+        migration_builder.migration_class_name([:article]).should == 'MigrateArticlesNo00001'
       end
     end
 
     context "given up to three model names" do
       it "uses these model names in the class name" do
-        migration_builder.migration_class_name([:user, :project, :organization]).should == 'MigrateUsersAndProjectsAndOrganizations_00001'
+        migration_builder.migration_class_name([:user, :project, :organization]).should == 'MigrateUsersAndProjectsAndOrganizationsNo00001'
       end
     end
 
     context "given more than three model names" do
       it "does not use more than three model names in the class name" do
-        migration_builder.migration_class_name([:user, :project, :organization, :another]).should == 'MigrateUsersAndProjectsAndOrganizationsAnd1More_00001'
+        migration_builder.migration_class_name([:user, :project, :organization, :another]).should == 'MigrateUsersAndProjectsAndOrganizationsAndMoreNo00001'
       end
     end
   end
@@ -245,7 +245,7 @@ EOF
     end
 
     it "tableizes the class names and builds a correct file name" do
-      migration_builder.migration_file_name([:user, :project]).should == "#{timestamp}_migrate_users_and_projects_00001.rb"
+      migration_builder.migration_file_name([:user, :project]).should == "#{timestamp}_migrate_users_and_projects_no00001.rb"
     end
   end
 
