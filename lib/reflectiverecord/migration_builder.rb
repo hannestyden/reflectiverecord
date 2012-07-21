@@ -16,6 +16,13 @@ module ReflectiveRecord
       up_or_down_migration add_instruction, remove_instruction, remove_column
     end
 
+    def migration_class_definition(class_name, migrations=[])
+      migration = "class #{class_name} < ActiveRecord::Migration\n"
+      migration += up_instruction migrations
+      migration += down_instruction migrations
+      migration += "end\n"
+    end
+
     private
 
     def create_table_instruction(model_name, attributes)
@@ -38,6 +45,18 @@ module ReflectiveRecord
 
     def remove_column_instruction(model_name, attribute_name)
       "    remove_column :#{model_name.to_s.tableize}, :#{attribute_name}\n"
+    end
+
+    def up_instruction(migrations=[])
+      instruction = "  def up\n"
+      migrations.each{ |migration| instruction += migration[:up] }
+      instruction += "  end\n\n"
+    end
+
+    def down_instruction(migrations=[])
+      instruction = "  def down\n"
+      migrations.each{ |migration| instruction += migration[:down] }
+      instruction += "  end\n"
     end
 
     def up_or_down_migration(up_instruction, down_instruction, reverse_migration=false)

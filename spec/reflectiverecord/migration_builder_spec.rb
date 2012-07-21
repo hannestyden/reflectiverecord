@@ -69,4 +69,55 @@ EOF
     end
   end
 
+  describe "#migration_class_definition" do
+    context "given no migrations" do
+      let(:expected_class_definition) do <<EOF
+class UpdateTables < ActiveRecord::Migration
+  def up
+  end
+
+  def down
+  end
+end
+EOF
+      end
+
+      it "generates a class with empty up and down methods" do
+        migration_builder.migration_class_definition('UpdateTables').should == expected_class_definition
+      end
+    end
+
+    context "given migrations" do
+      let(:attributes) { Hash[:title => Hash[:type => :string, :options => { null: 'false' }]] }
+
+      let(:migrations) do
+        [
+          migration_builder.table_migration(:some_model, attributes),
+          migration_builder.column_migration(:other_model, :title, :type => :string, :options => { null: 'false' })
+        ]
+      end
+
+      let(:expected_class_definition) do <<EOF
+class UpdateTables < ActiveRecord::Migration
+  def up
+    create_table :some_models do |t|
+      t.string :title, :null => false
+    end
+    add_column :other_models, :title, :string, :null => false
+  end
+
+  def down
+    drop_table :some_models
+    remove_column :other_models, :title
+  end
+end
+EOF
+      end
+
+      it "generates a class with appropriate up and down methods" do
+        migration_builder.migration_class_definition('UpdateTables', migrations).should == expected_class_definition
+      end
+    end
+  end
+
 end
