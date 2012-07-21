@@ -16,28 +16,24 @@ module ReflectiveRecord
       instance_variable_set :@reflective_attributes, reflective_attributes
     end
 
-    alias_method :has_attribute, :attribute
-
-    module PostExtension
-      def belongs_to(model_name, options={})
-        super model_name, options
-        foreign_key = options[:foreign_key] || :"#{model_name}_id"
-        attribute foreign_key, :integer
-        attribute :"#{model_name}_type", :string if options[:polymorphic] == true
-      end
-
-      def serialize(attribute_name, class_name = Object, options={})
-        super attribute_name, class_name
-        attribute attribute_name, :text, options
-      end
-
-      def has_secure_password
-        super
-        attribute :password_digest, :string
-      end
+    def belongs_to(model_name, options={})
+      super model_name, options
+      foreign_key = options[:foreign_key] || :"#{model_name}_id"
+      attribute foreign_key, :integer
+      attribute :"#{model_name}_type", :string if options[:polymorphic] == true
     end
 
-    include PostExtension
+    def serialize(attribute_name, class_name = Object, options={})
+      super attribute_name, class_name
+      attribute attribute_name, :text, options
+    end
+
+    def has_secure_password
+      super
+      attribute :password_digest, :string
+    end
+
+    alias_method :has_attribute, :attribute
 
     private
 
