@@ -82,7 +82,7 @@ ReflectiveRecord lets you work with smarter ActiveRecord models.
 
   * Use ```rake db:status``` to see schema changes.
   * Use ```rake db:update``` to migrate to the updated schema version.
-  * Use ```rake db:update --rebuild``` to merge schema changes into the previous migration and re-migrate.
+  * Use ```rake db:rebuild``` to merge schema changes into the previous migration and re-migrate.
 
 * **Let database indexes be generated automatically.**
 
