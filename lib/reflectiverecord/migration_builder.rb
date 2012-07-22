@@ -58,7 +58,9 @@ module ReflectiveRecord
     private
 
     def create_table_instruction(table_name, attributes)
-      instruction = "    create_table :#{table_name} do |t|\n"
+      join_relations = ActiveRecord::Base.instance_variable_get :@reflective_joins
+      table_option = join_relations.keys.include?(table_name) ? ', :id => false' : ''
+      instruction = "    create_table :#{table_name}#{table_option} do |t|\n"
       attributes.each do |attribute_name, attribute_description|
         formatted_options = format_options attribute_description[:options]
         instruction += "      t.#{attribute_description[:type]} :#{attribute_name}#{formatted_options}\n"

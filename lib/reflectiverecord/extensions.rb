@@ -35,9 +35,9 @@ module ReflectiveRecord
 
     def has_and_belongs_to_many(relation_name, options={}, &extension)
       super relation_name, options, &extension
-      reflective_join_relations = ActiveRecord::Base.instance_variable_get(:@reflective_join_relations) || {}
-      reflective_join_relations[join_relation_name(relation_name, options)] ||= join_relation_attributes(relation_name, options)
-      ActiveRecord::Base.instance_variable_set :@reflective_join_relations, reflective_join_relations
+      reflective_joins = ActiveRecord::Base.instance_variable_get(:@reflective_joins) || {}
+      reflective_joins[join_relation_name(relation_name, options)] ||= join_relation_attributes(relation_name, options)
+      ActiveRecord::Base.instance_variable_set :@reflective_joins, reflective_joins
     end
 
     def serialize(attribute_name, class_name = Object, options={})

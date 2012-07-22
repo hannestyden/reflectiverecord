@@ -23,11 +23,11 @@ class ExtensionsTestModel < ActiveRecord::Base
 end
 
 describe ReflectiveRecord::Extensions do
-  let(:reflective_attributes)      { ExtensionsTestModel.instance_variable_get(:@reflective_attributes) }
-  let(:reflective_join_relations)  { ActiveRecord::Base.instance_variable_get(:@reflective_join_relations) }
+  let(:reflective_attributes) { ExtensionsTestModel.instance_variable_get(:@reflective_attributes) }
+  let(:reflective_joins)      { ActiveRecord::Base.instance_variable_get(:@reflective_joins) }
 
   after :all do
-    ActiveRecord::Base.instance_variable_set :@reflective_join_relations, {}
+    ActiveRecord::Base.instance_variable_set :@reflective_joins, {}
   end
 
   it "recognizes string attributes" do
@@ -63,12 +63,12 @@ describe ReflectiveRecord::Extensions do
   end
 
   it "recognizes has_and_belongs_to_many relationships" do
-    reflective_join_relations.should be_kind_of(Hash)
+    reflective_joins.should be_kind_of(Hash)
   end
 
   it "generates has_and_belongs_to_many options foreign_key, association_foreign_key, and join_table correctly" do
     attribute_definition = { :type => :integer, options: { null: 'false' } }
-    reflective_join_relations.should == {
+    reflective_joins.should == {
       :my_join_table => { :extensions_test_model_id => attribute_definition, :association_id => attribute_definition },
       :anothers_extensions_test_models => { :some_id => attribute_definition, :another_id => attribute_definition }
     }

@@ -22,7 +22,7 @@ module ReflectiveRecord
           table_name = model_name.to_s.tableize.to_sym
           schema[table_name] = model_class.instance_variable_get :@reflective_attributes
         end
-        join_relations = ::ActiveRecord::Base.instance_variable_get :@reflective_join_relations
+        join_relations = ::ActiveRecord::Base.instance_variable_get :@reflective_joins
         schema.merge(join_relations || {})
       end
 
