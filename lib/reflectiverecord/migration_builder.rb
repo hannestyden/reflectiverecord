@@ -25,17 +25,7 @@ module ReflectiveRecord
               migrations << column_migration(model_name, attribute_name, attribute_description, reverse)
             end
           else
-            prevent_migration = false
-            if ActiveRecord::Base.respond_to?(:subclasses)
-              # This condition prevents the modification of tables added by other gems.
-              prevent_migration = !!Rails.application.eager_load! &&
-                                  (ActiveRecord::Base.subclasses.map(&:table_name).include?(model_name.to_s.tableize) ||
-                                   ActiveRecord::Base.subclasses.map(&:model_name).any?{ |model| model.constantize.reflect_on_all_associations.any?{ |association| association.plural_name == model_name.to_s.pluralize } })
-
-              # This condition prevents the removal of has-and-belongs-to-many tables.
-              prevent_migration ||= ActiveRecord::Base.subclasses.map(&:model_name).map{ |model| model.constantize.instance_variable_get(:@reflective_habtm_relationships) }.compact.map(&:values).map(&:first).any?{ |habtm| habtm[:join_table] == model_name.to_s.tableize }
-            end
-            unless prevent_migration
+            unless prevent_migration_for?(model_name)
               migrations << table_migration(model_name, attributes, reverse)
             end
           end
@@ -45,7 +35,8 @@ module ReflectiveRecord
     end
 
     def migration_class_name(model_names=[], sequence_number=1)
-      model_names.map!(&:to_s).map!(&:pluralize).map!(&:camelize)
+      model_names.reject!{ |model_name| prevent_migration_for?(model_name) }
+      model_names = model_names.map(&:to_s).map(&:pluralize).map(&:camelize)
       if model_names.count > 3
         model_names = model_names[0..2] + ["More"]
       elsif model_names.count == 0
@@ -117,6 +108,20 @@ module ReflectiveRecord
 
     def migration_timestamp
       @migration_timestamp ||= Time.now.strftime("%Y%m%d%H%M%S")
+    end
+
+    def prevent_migration_for?(model_name)
+      prevent_migration = false
+      if ActiveRecord::Base.respond_to?(:subclasses)
+        # This condition prevents the modification of tables added by other gems.
+        prevent_migration = !!Rails.application.eager_load! &&
+                            (ActiveRecord::Base.subclasses.map(&:table_name).include?(model_name.to_s.tableize) ||
+                             ActiveRecord::Base.subclasses.map(&:model_name).any?{ |model| model.constantize.reflect_on_all_associations.any?{ |association| association.plural_name == model_name.to_s.pluralize } })
+
+        # This condition prevents the removal of has-and-belongs-to-many tables.
+        prevent_migration ||= ActiveRecord::Base.subclasses.map(&:model_name).map{ |model| model.constantize.instance_variable_get(:@reflective_habtm_relationships) }.compact.map(&:values).map(&:first).any?{ |habtm| habtm[:join_table] == model_name.to_s.tableize }
+      end
+      prevent_migration
     end
 
   end
