@@ -66,8 +66,8 @@ module ReflectiveRecord
                            ("#{options[:class_name].underscore}_id" if options[:class_name]) ||
                            "#{relation_name.to_s.singularize}_id"
       {
-        first_foreign_key.to_sym  => { type: 'integer', options: { null: 'false' } },
-        second_foreign_key.to_sym => { type: 'integer', options: { null: 'false' } }
+        first_foreign_key.to_sym  => { :type => :integer, options: { null: 'false' } },
+        second_foreign_key.to_sym => { :type => :integer, options: { null: 'false' } }
       }
     end
 

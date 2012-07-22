@@ -46,10 +46,6 @@ module ReflectiveRecord
       end
 
       def schemas_differ?(source_schema, target_schema, table_name, attribute_name)
-        p target_schema[table_name][attribute_name][:type]
-        p source_schema[table_name][attribute_name][:type]
-        p target_schema[table_name][attribute_name][:options]
-        p source_schema[table_name][attribute_name][:options]
         (target_schema[table_name][attribute_name][:type] != source_schema[table_name][attribute_name][:type]) ||
         (target_schema[table_name][attribute_name][:options] != source_schema[table_name][attribute_name][:options])
       end

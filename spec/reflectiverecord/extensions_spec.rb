@@ -67,7 +67,7 @@ describe ReflectiveRecord::Extensions do
   end
 
   it "generates has_and_belongs_to_many options foreign_key, association_foreign_key, and join_table correctly" do
-    attribute_definition = { type: 'integer', options: { null: 'false' } }
+    attribute_definition = { :type => :integer, options: { null: 'false' } }
     reflective_join_relations.should == {
       :my_join_table => { :extensions_test_model_id => attribute_definition, :association_id => attribute_definition },
       :anothers_extensions_test_models => { :some_id => attribute_definition, :another_id => attribute_definition }

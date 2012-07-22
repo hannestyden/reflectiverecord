@@ -85,6 +85,8 @@ describe ReflectiveRecord::SchemaMigrator do
     active_record_schema_builder = ReflectiveRecord::SchemaBuilder::ActiveRecord.new '/some/path'
     active_record_schema_builder.stub(:active_record_model_names).and_return [:car, :person, :wheel]
     ReflectiveRecord::SchemaBuilder::ActiveRecord.stub(:new).and_return active_record_schema_builder
+    Rails.stub(:root).and_return '/some'
+    Rails.stub_chain(:application, :eager_load!)
   end
 
   describe "#initialize" do

@@ -5,6 +5,7 @@ module ReflectiveRecord
   class SchemaMigrator
 
     def initialize
+      Rails.application.eager_load!
       @migration_builder = ReflectiveRecord::MigrationBuilder.new
       @active_record_schema_builder = SchemaBuilder::ActiveRecord.new "#{Rails.root}/app/models"
       @file_contents_schema_builder = SchemaBuilder::FileContents.new IO.read("#{Rails.root}/db/schema.rb")

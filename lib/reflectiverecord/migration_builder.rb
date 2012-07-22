@@ -113,9 +113,11 @@ module ReflectiveRecord
       prevent_migration = false
       if ActiveRecord::Base.respond_to?(:subclasses)
         # This condition prevents the modification of tables added by other gems.
-        prevent_migration = !!Rails.application.eager_load! &&
-                            (ActiveRecord::Base.subclasses.map(&:table_name).include?(table_name.to_s) ||
-                             ActiveRecord::Base.subclasses.map(&:model_name).any?{ |model| model.constantize.reflect_on_all_associations.any?{ |association| association.plural_name == table_name.to_s } })
+        prevent_migration = (ActiveRecord::Base.subclasses.map(&:table_name).include?(table_name.to_s) ||
+                             ActiveRecord::Base.subclasses.map(&:model_name).any?{ |model| model.constantize.reflect_on_all_associations.any?{ |association| association.plural_name == table_name.to_s } }) &&
+                            !SchemaBuilder::ActiveRecord.new("#{Rails.root}/app/models").active_record_model_names.include?(table_name.to_s.singularize.to_sym)
+        p table_name
+        p prevent_migration
       end
       prevent_migration
     end
