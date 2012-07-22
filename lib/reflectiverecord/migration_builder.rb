@@ -110,6 +110,7 @@ module ReflectiveRecord
     end
 
     def ignore_migration_for?(table_name)
+      @ignored_migrations ||= []
       ignore_migration = false
       if ActiveRecord::Base.respond_to?(:subclasses)
         #
@@ -121,7 +122,11 @@ module ReflectiveRecord
         ignore_migration = (ActiveRecord::Base.subclasses.map(&:table_name).include?(table_name.to_s) ||
                              ActiveRecord::Base.subclasses.map(&:model_name).any?{ |model| model.constantize.reflect_on_all_associations.any?{ |association| association.plural_name == table_name.to_s } }) &&
                             !SchemaBuilder::ActiveRecord.new("#{Rails.root}/app/models").active_record_model_names.include?(table_name.to_s.singularize.to_sym)
-        puts "Ignoring #{table_name}" if ignore_migration
+
+        if ignore_migration && !@ignored_migrations[table_name]
+          puts "Ignoring #{table_name}"
+          @ignored_migrations << table_name
+        end
       end
       ignore_migration
     end
