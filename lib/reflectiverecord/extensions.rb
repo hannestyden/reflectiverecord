@@ -28,7 +28,7 @@ module ReflectiveRecord
     end
 
     def belongs_to(model_name, options={})
-      handle_validation_option name, options.delete(:validates)
+      handle_validation_option model_name, options.delete(:validates)
       foreign_key = options[:foreign_key] || :"#{model_name}_id"
       attribute foreign_key, :integer
       attribute :"#{model_name}_type", :string if options[:polymorphic] == true
