@@ -19,9 +19,11 @@ module ReflectiveRecord
         model_names.each do |model_name|
           model_class = model_name.to_s.camelize.constantize
           add_default_attributes_to! model_class
-          schema[model_name] = model_class.instance_variable_get :@reflective_attributes
+          table_name = model_name.to_s.tableize.to_sym
+          schema[table_name] = model_class.instance_variable_get :@reflective_attributes
         end
-        schema
+        join_relations = ::ActiveRecord::Base.instance_variable_get :@reflective_join_relations
+        schema.merge(join_relations || {})
       end
 
       private

@@ -44,42 +44,43 @@ describe ReflectiveRecord::SchemaBuilder::ActiveRecord do
 
   describe "#build_schema_from_model_names" do
     let(:model_names)  { [:active_record_test_model, :another_active_record_test_model] }
+    let(:table_names)  { [:active_record_test_models, :another_active_record_test_models] }
     let(:built_schema) { schema_builder.build_schema_from_model_names(model_names) }
 
-    it "returns a hash with the model names as keys" do
-      built_schema.keys.should =~ model_names
+    it "returns a hash with the table names as keys" do
+      built_schema.keys.should =~ table_names
     end
 
     it "retrieves the reflective attributes from the given models" do
-      built_schema[:another_active_record_test_model].keys.should include(:title, :description)
+      built_schema[:another_active_record_test_models].keys.should include(:title, :description)
     end
 
     it "adds the default attributes created_at and updated_at to each model" do
-      built_schema[:another_active_record_test_model].keys.should include(:created_at, :updated_at)
+      built_schema[:another_active_record_test_models].keys.should include(:created_at, :updated_at)
     end
 
     describe "attribute format" do
       it "has type and options" do
-        built_schema[:active_record_test_model][:number].keys.should =~ [:type, :options]
+        built_schema[:active_record_test_models][:number].keys.should =~ [:type, :options]
       end
 
       describe "type" do
         it "is correct and a symbol" do
-          built_schema[:active_record_test_model][:number][:type].should == :integer
+          built_schema[:active_record_test_models][:number][:type].should == :integer
         end
       end
 
       describe "options" do
         it "are correct and a hash" do
-          built_schema[:active_record_test_model][:number][:options].should be_kind_of(Hash)
+          built_schema[:active_record_test_models][:number][:options].should be_kind_of(Hash)
         end
 
         it "have symbols as keys" do
-          built_schema[:active_record_test_model][:number][:options].keys.should =~ [:null, :default]
+          built_schema[:active_record_test_models][:number][:options].keys.should =~ [:null, :default]
         end
 
         it "have strings as values" do
-          built_schema[:active_record_test_model][:number][:options].values.should =~ ['false', '5']
+          built_schema[:active_record_test_models][:number][:options].values.should =~ ['false', '5']
         end
       end
     end

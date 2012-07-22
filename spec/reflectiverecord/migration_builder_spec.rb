@@ -19,7 +19,7 @@ EOF
     end
 
     describe "creating a table" do
-      let (:table_migration) { migration_builder.table_migration(:some_model, attributes) }
+      let (:table_migration) { migration_builder.table_migration(:some_models, attributes) }
 
       it "builds the correct up migration" do
         table_migration[:up].should == create_table_migration
@@ -31,7 +31,7 @@ EOF
     end
 
     describe "dropping a table" do
-      let (:table_migration) { migration_builder.table_migration(:some_model, attributes, true) }
+      let (:table_migration) { migration_builder.table_migration(:some_models, attributes, true) }
 
       it "builds the correct up migration" do
         table_migration[:up].should == drop_table_migration
@@ -57,7 +57,7 @@ EOF
     end
 
     describe "adding a column" do
-      let (:column_migration) { migration_builder.column_migration(:some_model, :title, attribute_description) }
+      let (:column_migration) { migration_builder.column_migration(:some_models, :title, attribute_description) }
 
       it "builds the correct up migration" do
         column_migration[:up].should == add_column_migration
@@ -92,8 +92,8 @@ EOF
 
       let(:migrations) do
         [
-          migration_builder.table_migration(:some_model, attributes),
-          migration_builder.column_migration(:other_model, :title, :type => :string, :options => { null: 'false' })
+          migration_builder.table_migration(:some_models, attributes),
+          migration_builder.column_migration(:other_models, :title, :type => :string, :options => { null: 'false' })
         ]
       end
 
@@ -123,7 +123,7 @@ EOF
   describe "#migrations_from_schema_variation" do
     let(:source_schema) do
       {
-        user: {
+        users: {
           id: {
             :type => :integer,
             :options => { null: 'false' }
@@ -142,7 +142,7 @@ EOF
 
     let(:target_schema) do
       {
-        user: {
+        users: {
           id: {
             :type => :integer,
             :options => { null: 'false' }
@@ -156,7 +156,7 @@ EOF
             :options => { null: 'false' }
           }
         },
-        project: {
+        projects: {
           title: {
             :type => :string,
             :options => {}
@@ -215,19 +215,19 @@ EOF
 
     context "given just one model name" do
       it "uses just that model name in the class name" do
-        migration_builder.migration_class_name([:article]).should == 'MigrationOfArticlesNo001'
+        migration_builder.migration_class_name([:articles]).should == 'MigrationOfArticlesNo001'
       end
     end
 
     context "given up to three model names" do
       it "uses these model names in the class name" do
-        migration_builder.migration_class_name([:user, :project, :organization]).should == 'MigrationOfUsersAndProjectsAndOrganizationsNo001'
+        migration_builder.migration_class_name([:users, :projects, :organizations]).should == 'MigrationOfUsersAndProjectsAndOrganizationsNo001'
       end
     end
 
     context "given more than three model names" do
       it "does not use more than three model names in the class name" do
-        migration_builder.migration_class_name([:user, :project, :organization, :another]).should == 'MigrationOfUsersAndProjectsAndOrganizationsAndMoreNo001'
+        migration_builder.migration_class_name([:users, :projects, :organizations, :anothers]).should == 'MigrationOfUsersAndProjectsAndOrganizationsAndMoreNo001'
       end
     end
   end
@@ -245,7 +245,7 @@ EOF
     end
 
     it "tableizes the class names and builds a correct file name" do
-      migration_builder.migration_file_name([:user, :project]).should == "#{timestamp}_migration_of_users_and_projects_no001.rb"
+      migration_builder.migration_file_name([:users, :projects]).should == "#{timestamp}_migration_of_users_and_projects_no001.rb"
     end
   end
 

@@ -17,23 +17,23 @@ module ReflectiveRecord
 
       def build_schema_from_lines(schema_lines)
         schema = {}
-        current_model_name = nil
+        current_table_name = nil
         schema_lines.each do |line|
-          model_name = extract_model_name_from_line line
+          table_name = extract_table_name_from_line line
           column_definition = extract_column_definition_from_line line
-          current_model_name = model_name if model_name
-          if current_model_name and column_definition
-            schema[current_model_name] ||= {}
-            schema[current_model_name].merge! column_definition
+          current_table_name = table_name if table_name
+          if current_table_name and column_definition
+            schema[current_table_name] ||= {}
+            schema[current_table_name].merge! column_definition
           end
         end
         schema
       end
 
-      def extract_model_name_from_line(line)
+      def extract_table_name_from_line(line)
         if table_match_data = line.match(/\screate_table\s*"([^"]+)"/)
           table_name = table_match_data[1]
-          table_name.singularize.to_sym
+          table_name.to_sym
         end
       end
 

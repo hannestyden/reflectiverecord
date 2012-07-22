@@ -23,8 +23,12 @@ class ExtensionsTestModel < ActiveRecord::Base
 end
 
 describe ReflectiveRecord::Extensions do
-  let(:reflective_attributes)          { ExtensionsTestModel.instance_variable_get(:@reflective_attributes) }
-  let(:reflective_habtm_relationships) { ExtensionsTestModel.instance_variable_get(:@reflective_habtm_relationships) }
+  let(:reflective_attributes)      { ExtensionsTestModel.instance_variable_get(:@reflective_attributes) }
+  let(:reflective_join_relations)  { ActiveRecord::Base.instance_variable_get(:@reflective_join_relations) }
+
+  after :all do
+    ActiveRecord::Base.instance_variable_set :@reflective_join_relations, {}
+  end
 
   it "recognizes string attributes" do
     reflective_attributes[:name][:type].should be(:string)
@@ -59,12 +63,15 @@ describe ReflectiveRecord::Extensions do
   end
 
   it "recognizes has_and_belongs_to_many relationships" do
-    reflective_habtm_relationships[:other_model].should be_kind_of(Hash)
+    reflective_join_relations.should be_kind_of(Hash)
   end
 
   it "generates has_and_belongs_to_many options foreign_key, association_foreign_key, and join_table correctly" do
-    reflective_habtm_relationships[:other_model].should == { join_table: 'my_join_table', foreign_key: 'extensions_test_model_id', association_foreign_key: 'association_id' }
-    reflective_habtm_relationships[:even_more_model].should == { join_table: 'anothers_extensions_test_models', foreign_key: 'some_id', association_foreign_key: 'another_id' }
+    attribute_definition = { type: 'integer', options: { null: 'false' } }
+    reflective_join_relations.should == {
+      :my_join_table => { :extensions_test_model_id => attribute_definition, :association_id => attribute_definition },
+      :anothers_extensions_test_models => { :some_id => attribute_definition, :another_id => attribute_definition }
+    }
   end
 
   it "recognizes serialized attributes" do

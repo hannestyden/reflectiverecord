@@ -21,33 +21,37 @@ module ReflectiveRecord
 
       def additions_between(source_schema, target_schema)
         changes = {}
-        (target_schema.keys - source_schema.keys).each do |model_name|
-          changes.merge! Hash[model_name => target_schema[model_name]]
+        (target_schema.keys - source_schema.keys).each do |table_name|
+          changes.merge! Hash[table_name => target_schema[table_name]]
         end
-        (source_schema.keys & target_schema.keys).each do |model_name|
-          (target_schema[model_name].keys - source_schema[model_name].keys).each do |attribute_name|
-            merge_changes! changes, model_name, attribute_name, target_schema
+        (source_schema.keys & target_schema.keys).each do |table_name|
+          (target_schema[table_name].keys - source_schema[table_name].keys).each do |attribute_name|
+            merge_changes! changes, table_name, attribute_name, target_schema
           end
-          (source_schema[model_name].keys & target_schema[model_name].keys).each do |attribute_name|
-            if schemas_differ?(source_schema, target_schema, model_name, attribute_name)
-              merge_changes! changes, model_name, attribute_name, target_schema
+          (source_schema[table_name].keys & target_schema[table_name].keys).each do |attribute_name|
+            if schemas_differ?(source_schema, target_schema, table_name, attribute_name)
+              merge_changes! changes, table_name, attribute_name, target_schema
             end
           end
         end
         changes
       end
 
-      def merge_changes!(changes, model_name, attribute_name, schema)
-        if changes[model_name]
-          changes[model_name].merge! Hash[attribute_name => schema[model_name][attribute_name]]
+      def merge_changes!(changes, table_name, attribute_name, schema)
+        if changes[table_name]
+          changes[table_name].merge! Hash[attribute_name => schema[table_name][attribute_name]]
         else
-          changes.merge! Hash[model_name => { attribute_name => schema[model_name][attribute_name] }]
+          changes.merge! Hash[table_name => { attribute_name => schema[table_name][attribute_name] }]
         end
       end
 
-      def schemas_differ?(source_schema, target_schema, model_name, attribute_name)
-        target_schema[model_name][attribute_name][:type] != source_schema[model_name][attribute_name][:type] or
-        target_schema[model_name][attribute_name][:options] != source_schema[model_name][attribute_name][:options]
+      def schemas_differ?(source_schema, target_schema, table_name, attribute_name)
+        p target_schema[table_name][attribute_name][:type]
+        p source_schema[table_name][attribute_name][:type]
+        p target_schema[table_name][attribute_name][:options]
+        p source_schema[table_name][attribute_name][:options]
+        (target_schema[table_name][attribute_name][:type] != source_schema[table_name][attribute_name][:type]) ||
+        (target_schema[table_name][attribute_name][:options] != source_schema[table_name][attribute_name][:options])
       end
 
     end

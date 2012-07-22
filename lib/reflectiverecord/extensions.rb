@@ -33,15 +33,11 @@ module ReflectiveRecord
       attribute :"#{model_name}_type", :string if options[:polymorphic] == true
     end
 
-    def has_and_belongs_to_many(name, options={}, &extension)
-      super name, options, &extension
-      reflective_habtm_relationships = instance_variable_get(:@reflective_habtm_relationships) || {}
-      reflective_habtm_relationships[name.to_s.singularize.to_sym] = {
-        foreign_key: options[:foreign_key] || "#{self.name.underscore}_id",
-        association_foreign_key: options[:association_foreign_key] || ("#{options[:class_name].underscore}_id" if options[:class_name]) || "#{name.to_s.singularize}_id",
-        join_table: options[:join_table] || [self.name.tableize, (options[:class_name].tableize if options[:class_name]) || name.to_s].sort.join('_')
-      }
-      instance_variable_set :@reflective_habtm_relationships, reflective_habtm_relationships
+    def has_and_belongs_to_many(relation_name, options={}, &extension)
+      super relation_name, options, &extension
+      reflective_join_relations = ActiveRecord::Base.instance_variable_get(:@reflective_join_relations) || {}
+      reflective_join_relations[join_relation_name(relation_name, options)] ||= join_relation_attributes(relation_name, options)
+      ActiveRecord::Base.instance_variable_set :@reflective_join_relations, reflective_join_relations
     end
 
     def serialize(attribute_name, class_name = Object, options={})
@@ -55,6 +51,25 @@ module ReflectiveRecord
     end
 
     private
+
+    def join_relation_name(relation_name, options)
+      table_name = options[:join_table] || [
+        self.name.tableize,
+        (options[:class_name].tableize if options[:class_name]) || relation_name
+      ].sort.join('_')
+      table_name.to_sym
+    end
+
+    def join_relation_attributes(relation_name, options)
+      first_foreign_key = options[:foreign_key] || "#{self.name.underscore}_id"
+      second_foreign_key = options[:association_foreign_key] ||
+                           ("#{options[:class_name].underscore}_id" if options[:class_name]) ||
+                           "#{relation_name.to_s.singularize}_id"
+      {
+        first_foreign_key.to_sym  => { type: 'integer', options: { null: 'false' } },
+        second_foreign_key.to_sym => { type: 'integer', options: { null: 'false' } }
+      }
+    end
 
     def stringify_options(options)
       new_options = {}

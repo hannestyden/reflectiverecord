@@ -32,36 +32,36 @@ describe ReflectiveRecord::SchemaBuilder::FileContents do
   describe "#build_schema" do
     let(:built_schema) { schema_builder.build_schema }
 
-    it "returns a hash with the model names as keys" do
-      built_schema.keys.should =~ [:car, :person, :wheel]
+    it "returns a hash with the table names as keys" do
+      built_schema.keys.should =~ [:cars, :people, :wheels]
     end
 
     it "retrieves the correct attributes from the given models" do
-      built_schema[:wheel].keys.should =~ [:color, :options, :car_id, :created_at, :updated_at]
+      built_schema[:wheels].keys.should =~ [:color, :options, :car_id, :created_at, :updated_at]
     end
 
     describe "attribute format" do
       it "has type and options" do
-        built_schema[:car][:speedy].keys.should =~ [:type, :options]
+        built_schema[:cars][:speedy].keys.should =~ [:type, :options]
       end
 
       describe "type" do
         it "is correct and a symbol" do
-          built_schema[:car][:speedy][:type].should == :boolean
+          built_schema[:cars][:speedy][:type].should == :boolean
         end
       end
 
       describe "options" do
         it "are correct and a hash" do
-          built_schema[:wheel][:created_at][:options].should be_kind_of(Hash)
+          built_schema[:wheels][:created_at][:options].should be_kind_of(Hash)
         end
 
         it "have symbols as keys" do
-          built_schema[:wheel][:created_at][:options].keys.should =~ [:null]
+          built_schema[:wheels][:created_at][:options].keys.should =~ [:null]
         end
 
         it "have strings as values" do
-          built_schema[:wheel][:created_at][:options].values.should =~ ['false']
+          built_schema[:wheels][:created_at][:options].values.should =~ ['false']
         end
       end
     end
