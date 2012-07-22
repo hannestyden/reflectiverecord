@@ -10,11 +10,7 @@
 module ReflectiveRecord
   module Extensions
 
-    ATTRIBUTE_TYPES = begin
-      ActiveRecord::Base.connection.native_database_types.keys
-    rescue
-      [:primary_key, :string, :text, :integer, :float, :decimal, :datetime, :timestamp, :time, :date, :binary, :boolean]
-    end
+    ATTRIBUTE_TYPES = [:primary_key, :string, :text, :integer, :float, :decimal, :datetime, :timestamp, :time, :date, :binary, :boolean]
 
     def attribute(attribute_name, type, options={})
       reflective_attributes = instance_variable_get(:@reflective_attributes) || {}
