@@ -42,7 +42,7 @@ module ReflectiveRecord
       elsif model_names.count == 0
         model_names = ['Nothing']
       end
-      "Migrate#{model_names.join('And')}No#{'%05d' % sequence_number}"
+      "Migrate#{model_names.join('And')}No#{'%03d' % sequence_number}"
     end
 
     def migration_class_definition(class_name, migrations=[])
