@@ -11,6 +11,9 @@ class ExtensionsTestModel < ActiveRecord::Base
   has_decimal :amount
   has_integer :count, null: false
 
+  has_and_belongs_to_many :other_models, join_table: 'my_join_table', association_foreign_key: 'association_id'
+  has_and_belongs_to_many :even_more_models, class_name: 'Another', foreign_key: 'some_id'
+
   belongs_to :associated, class_name: 'OtherModel'
   belongs_to :polymorphic, polymorphic: true
 
@@ -20,7 +23,8 @@ class ExtensionsTestModel < ActiveRecord::Base
 end
 
 describe ReflectiveRecord::Extensions do
-  let(:reflective_attributes) { ExtensionsTestModel.instance_variable_get(:@reflective_attributes) }
+  let(:reflective_attributes)          { ExtensionsTestModel.instance_variable_get(:@reflective_attributes) }
+  let(:reflective_habtm_relationships) { ExtensionsTestModel.instance_variable_get(:@reflective_habtm_relationships) }
 
   it "recognizes string attributes" do
     reflective_attributes[:name][:type].should be(:string)
@@ -52,6 +56,15 @@ describe ReflectiveRecord::Extensions do
 
   it "recognizes polymorphic relationships" do
     reflective_attributes[:polymorphic_type][:type].should be(:string)
+  end
+
+  it "recognizes has_and_belongs_to_many relationships" do
+    reflective_habtm_relationships[:other_model].should be_kind_of(Hash)
+  end
+
+  it "generates has_and_belongs_to_many options foreign_key, association_foreign_key, and join_table correctly" do
+    reflective_habtm_relationships[:other_model].should == { join_table: 'my_join_table', foreign_key: 'extensions_test_model_id', association_foreign_key: 'association_id' }
+    reflective_habtm_relationships[:even_more_model].should == { join_table: 'anothers_extensions_test_models', foreign_key: 'some_id', association_foreign_key: 'another_id' }
   end
 
   it "recognizes serialized attributes" do
