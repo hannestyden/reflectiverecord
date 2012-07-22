@@ -10,6 +10,12 @@
 module ReflectiveRecord
   module Extensions
 
+    ATTRIBUTE_TYPES = begin
+      ActiveRecord::Base.connection.native_database_types.keys
+    rescue
+      [:primary_key, :string, :text, :integer, :float, :decimal, :datetime, :timestamp, :time, :date, :binary, :boolean]
+    end
+
     def attribute(attribute_name, type, options={})
       reflective_attributes = instance_variable_get(:@reflective_attributes) || {}
       reflective_attributes[attribute_name] = { type: type, options: stringify_options(options) }
@@ -18,12 +24,9 @@ module ReflectiveRecord
 
     alias_method :has_attribute, :attribute
 
-    def method_missing(method_name, *args, &block)
-      if method_name =~ /^has_/
-        attribute_type = method_name[4..-1].to_sym
-        has_attribute args.first, attribute_type, args.count > 1 ? args.last : {}
-      else
-        super method_name, args, &block
+    ATTRIBUTE_TYPES.each do |type|
+      define_method :"has_#{type}" do |attribute_name, options={}|
+        has_attribute attribute_name, type, options
       end
     end
 
