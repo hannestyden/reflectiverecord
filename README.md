@@ -29,7 +29,7 @@ rake db:update
 This will generate the following migration and migrate the database:
 
 ```ruby
-class MigrationOfArticles001 < ActiveRecord::Migration
+class MigrationOfArticlesV001 < ActiveRecord::Migration
   def up
     create_table :articles do |t|
       t.string :title

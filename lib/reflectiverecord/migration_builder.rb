@@ -37,11 +37,11 @@ module ReflectiveRecord
     def migration_class_name(table_names=[], sequence_number=1)
       table_names.reject!{ |table_name| ignore_migration_for?(table_name) }
       table_names = table_names.map(&:to_s).map(&:camelize)
-      if table_names.count > 3
-        table_names = table_names[0..2] + ["More"]
+      if table_names.count > 2
+        table_names = table_names[0..1] + ["More"]
       end
       prefix = table_names.count > 0 ? 'MigrationOf' : 'Migration'
-      "#{prefix}#{table_names.join('And')}No#{'%03d' % sequence_number}"
+      "#{prefix}#{table_names.join('And')}V#{'%03d' % sequence_number}"
     end
 
     def migration_class_definition(class_name, migrations=[])
