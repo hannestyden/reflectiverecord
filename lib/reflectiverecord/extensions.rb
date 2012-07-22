@@ -13,9 +13,7 @@ module ReflectiveRecord
     ATTRIBUTE_TYPES = [:primary_key, :string, :text, :integer, :float, :decimal, :datetime, :timestamp, :time, :date, :binary, :boolean]
 
     def attribute(attribute_name, type, options={})
-      if validation_options = options.delete(:validates)
-        validates attribute_name, validation_options
-      end
+      handle_validation_option attribute_name, options.delete(:validates)
       reflective_attributes = instance_variable_get(:@reflective_attributes) || {}
       reflective_attributes[attribute_name] = { type: type, options: stringify_options(options) }
       instance_variable_set :@reflective_attributes, reflective_attributes
@@ -30,30 +28,45 @@ module ReflectiveRecord
     end
 
     def belongs_to(model_name, options={})
-      super model_name, options
       foreign_key = options[:foreign_key] || :"#{model_name}_id"
       attribute foreign_key, :integer
       attribute :"#{model_name}_type", :string if options[:polymorphic] == true
+      super model_name, options
+    end
+
+    def has_one(name, options={})
+      handle_validation_option name, options.delete(:validates)
+      super name, options
+    end
+
+    def has_many(name, options={}, &extension)
+      handle_validation_option name, options.delete(:validates)
+      super name, options, &extension
     end
 
     def has_and_belongs_to_many(relation_name, options={}, &extension)
-      super relation_name, options, &extension
+      handle_validation_option relation_name, options.delete(:validates)
       reflective_joins = ActiveRecord::Base.instance_variable_get(:@reflective_joins) || {}
       reflective_joins[join_relation_name(relation_name, options)] ||= join_relation_attributes(relation_name, options)
       ActiveRecord::Base.instance_variable_set :@reflective_joins, reflective_joins
+      super relation_name, options, &extension
     end
 
     def serialize(attribute_name, class_name = Object, options={})
-      super attribute_name, class_name
       attribute attribute_name, :text, options
+      super attribute_name, class_name
     end
 
     def has_secure_password
-      super
       attribute :password_digest, :string
+      super
     end
 
     private
+
+    def handle_validation_option(name, validations)
+      validates name, validations if validations
+    end
 
     def join_relation_name(relation_name, options)
       table_name = options[:join_table] || [
