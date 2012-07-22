@@ -16,6 +16,15 @@ module ReflectiveRecord
       up_or_down_migration add_instruction, remove_instruction, remove_column
     end
 
+    def habtm_migration(join_table, foreign_key, association_foreign_key)
+      up_instruction = "    create_table :#{join_table}, :id => false do |t|\n"
+      up_instruction += "      t.integer :#{foreign_key}, :null => false\n"
+      up_instruction += "      t.integer :#{association_foreign_key}, :null => false\n"
+      up_instruction += "    end"
+      down_instruction = "    drop_table :#{join_table}\n"
+      { up: up_instruction, down: down_instruction }
+    end
+
     def migrations_from_schema_variation(source_schema, target_schema, additions={}, removals={})
       migrations = []
       { true => removals, false => additions }.each do |reverse, changes|
@@ -28,6 +37,15 @@ module ReflectiveRecord
             unless prevent_migration_for?(model_name)
               migrations << table_migration(model_name, attributes, reverse)
             end
+          end
+        end
+      end
+      if ActiveRecord::Base.respond_to?(:subclasses)
+        migrated_join_tables = {}
+        ActiveRecord::Base.subclasses.map(&:model_name).map{ |model| model.constantize.instance_variable_get(:@reflective_habtm_relationships) }.compact.map(&:values).map(&:first).each do |habtm|
+          unless ActiveRecord::Base.connection.table_exists?(habtm[:join_table]) || migrated_join_tables[habtm[:join_table]]
+            migrations << habtm_migration(habtm[:join_table], habtm[:foreign_key], habtm[:association_foreign_key])
+            migrated_join_tables[habtm[:join_table]] = true
           end
         end
       end
