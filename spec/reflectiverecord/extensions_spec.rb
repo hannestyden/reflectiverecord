@@ -3,10 +3,15 @@ require File.expand_path('../../../lib/reflectiverecord.rb', __FILE__)
 class ExtensionsTestModel < ActiveRecord::Base
   extend ReflectiveRecord::Extensions
 
+  def self.validates(*attributes)
+    @validation_container ||= []
+    @validation_container << attributes
+  end
+
   attribute :name, :string, null: false, default: 'text'
   attribute :number, :integer
 
-  has_attribute :title, :string
+  has_attribute :title, :string, validates: { presence: true }
 
   has_decimal :amount
   has_integer :count, null: false
@@ -23,6 +28,7 @@ class ExtensionsTestModel < ActiveRecord::Base
 end
 
 describe ReflectiveRecord::Extensions do
+  let(:validation_container)  { ExtensionsTestModel.instance_variable_get(:@validation_container) }
   let(:reflective_attributes) { ExtensionsTestModel.instance_variable_get(:@reflective_attributes) }
   let(:reflective_joins)      { ActiveRecord::Base.instance_variable_get(:@reflective_joins) }
 
@@ -40,6 +46,14 @@ describe ReflectiveRecord::Extensions do
 
   it "recognizes and stringifies options with attributes" do
     reflective_attributes[:name][:options].should == { null: 'false', default: '"text"' }
+  end
+
+  it "removes the inline validation option from the options" do
+    reflective_attributes[:title][:validates].should be_nil
+  end
+
+  it "adds the appropriate validations instead" do
+    validation_container.should == [ [:title, { presence: true }] ]
   end
 
   it "recognizes the alias has_attribute" do

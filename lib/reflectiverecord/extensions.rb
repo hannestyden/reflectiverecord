@@ -13,6 +13,9 @@ module ReflectiveRecord
     ATTRIBUTE_TYPES = [:primary_key, :string, :text, :integer, :float, :decimal, :datetime, :timestamp, :time, :date, :binary, :boolean]
 
     def attribute(attribute_name, type, options={})
+      if validation_options = options.delete(:validates)
+        validates attribute_name, validation_options
+      end
       reflective_attributes = instance_variable_get(:@reflective_attributes) || {}
       reflective_attributes[attribute_name] = { type: type, options: stringify_options(options) }
       instance_variable_set :@reflective_attributes, reflective_attributes
