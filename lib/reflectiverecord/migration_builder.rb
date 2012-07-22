@@ -123,7 +123,7 @@ module ReflectiveRecord
         #
         ignore_migration = (ActiveRecord::Base.subclasses.map(&:table_name).include?(table_name.to_s) ||
                              ActiveRecord::Base.subclasses.map(&:model_name).any?{ |model| model.constantize.reflect_on_all_associations.any?{ |association| association.plural_name == table_name.to_s } }) &&
-                            !SchemaBuilder::ActiveRecord.new("#{Rails.root}/app/models").active_record_model_names.include?(table_name.to_s.singularize.to_sym)
+                            !SchemaBuilder::ActiveRecord.new("#{Rails.root}/app/models").active_record_model_names.map(&:to_s).map(&:pluralize).include?(table_name.to_s)
 
         if ignore_migration && !@ignored_migrations.include?(table_name)
           puts "Ignoring #{table_name}"
