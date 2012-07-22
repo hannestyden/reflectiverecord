@@ -20,7 +20,7 @@ module ReflectiveRecord
       up_instruction = "    create_table :#{join_table}, :id => false do |t|\n"
       up_instruction += "      t.integer :#{foreign_key}, :null => false\n"
       up_instruction += "      t.integer :#{association_foreign_key}, :null => false\n"
-      up_instruction += "    end"
+      up_instruction += "    end\n"
       down_instruction = "    drop_table :#{join_table}\n"
       { up: up_instruction, down: down_instruction }
     end
@@ -57,10 +57,9 @@ module ReflectiveRecord
       model_names = model_names.map(&:to_s).map(&:pluralize).map(&:camelize)
       if model_names.count > 3
         model_names = model_names[0..2] + ["More"]
-      elsif model_names.count == 0
-        model_names = ['Nothing']
       end
-      "Migrate#{model_names.join('And')}No#{'%03d' % sequence_number}"
+      prefix = model_names.count > 0 ? 'MigrationOf' : 'Migration'
+      "#{prefix}#{model_names.join('And')}No#{'%03d' % sequence_number}"
     end
 
     def migration_class_definition(class_name, migrations=[])
