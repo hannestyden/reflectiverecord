@@ -61,7 +61,7 @@ Installation
 
 Installing the ReflectiveRecord gem is as simple as adding
 ```
-  gem 'relectiverecord'
+  gem 'reflectiverecord'
 ```
 
 to your Gemfile and running:
