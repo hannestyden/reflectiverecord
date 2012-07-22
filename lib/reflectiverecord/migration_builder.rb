@@ -25,7 +25,7 @@ module ReflectiveRecord
               migrations << column_migration(table_name, attribute_name, attribute_description, reverse)
             end
           else
-            unless prevent_migration_for?(table_name)
+            unless ignore_migration_for?(table_name)
               migrations << table_migration(table_name, attributes, reverse)
             end
           end
@@ -35,7 +35,7 @@ module ReflectiveRecord
     end
 
     def migration_class_name(table_names=[], sequence_number=1)
-      table_names.reject!{ |table_name| prevent_migration_for?(table_name) }
+      table_names.reject!{ |table_name| ignore_migration_for?(table_name) }
       table_names = table_names.map(&:to_s).map(&:camelize)
       if table_names.count > 3
         table_names = table_names[0..2] + ["More"]
@@ -109,17 +109,21 @@ module ReflectiveRecord
       @migration_timestamp ||= Time.now.strftime("%Y%m%d%H%M%S")
     end
 
-    def prevent_migration_for?(table_name)
-      prevent_migration = false
+    def ignore_migration_for?(table_name)
+      ignore_migration = false
       if ActiveRecord::Base.respond_to?(:subclasses)
-        # This condition prevents the modification of tables added by other gems.
-        prevent_migration = (ActiveRecord::Base.subclasses.map(&:table_name).include?(table_name.to_s) ||
+        #
+        # Note:
+        #   This condition makes sure that we ignore tables added by other gems.
+        #   This is a relatively ugly hack. If we find a better way to do this,
+        #   we should refactor this piece of code.
+        #
+        ignore_migration = (ActiveRecord::Base.subclasses.map(&:table_name).include?(table_name.to_s) ||
                              ActiveRecord::Base.subclasses.map(&:model_name).any?{ |model| model.constantize.reflect_on_all_associations.any?{ |association| association.plural_name == table_name.to_s } }) &&
                             !SchemaBuilder::ActiveRecord.new("#{Rails.root}/app/models").active_record_model_names.include?(table_name.to_s.singularize.to_sym)
-        p table_name
-        p prevent_migration
+        p "Ignoring #{table_name}" if ignore_migration
       end
-      prevent_migration
+      ignore_migration
     end
 
   end
