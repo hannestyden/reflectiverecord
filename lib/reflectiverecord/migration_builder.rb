@@ -12,7 +12,7 @@ module ReflectiveRecord
 
     def column_migration(table_name, attribute_name, attribute_description, remove_column=false)
       add_instruction = add_column_instruction table_name, attribute_name, attribute_description
-      remove_instruction = remove_column_instruction table_name, attribute_name
+      remove_instruction = remove_column_instruction table_name, attribute_name, attribute_description
       up_or_down_migration add_instruction, remove_instruction, remove_column
     end
 
@@ -73,12 +73,30 @@ module ReflectiveRecord
     end
 
     def add_column_instruction(table_name, attribute_name, attribute_description)
-      formatted_options = format_options attribute_description[:options]
-      "    add_column :#{table_name}, :#{attribute_name}, :#{attribute_description[:type]}#{formatted_options}\n"
+      formatted_options = format_options attribute_description[:options].except(:index)
+      instruction = "    add_column :#{table_name}, :#{attribute_name}, :#{attribute_description[:type]}#{formatted_options}\n"
+      instruction += add_index_instruction(table_name, attribute_description[:options][:index]) if attribute_description[:options][:index]
+      instruction
     end
 
-    def remove_column_instruction(table_name, attribute_name)
-      "    remove_column :#{table_name}, :#{attribute_name}\n"
+    def remove_column_instruction(table_name, attribute_name, attribute_description)
+      instruction = "    remove_column :#{table_name}, :#{attribute_name}\n"
+      instruction += remove_index_instruction(table_name, attribute_description[:options][:index]) if attribute_description[:options][:index]
+      instruction
+    end
+
+    def add_index_instruction(table_name, index_definition)
+      "    add_index :#{table_name}, #{index_definition.inspect}, :name => \"#{index_name(table_name, index_definition)}\"\n"
+    end
+
+    def remove_index_instruction(table_name, index_definition)
+      "    remove_index :#{table_name}, :name => \"#{index_name(table_name, index_definition)}\"\n"
+    end
+
+    def index_name(table_name, index_definition)
+      index_name = index_definition.to_s
+      index_name = index_definition.join('_') if index_definition.respond_to?(:each)
+      "#{table_name}_#{index_name}_index"
     end
 
     def up_instruction(migrations=[])

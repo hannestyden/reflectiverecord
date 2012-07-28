@@ -44,19 +44,45 @@ EOF
   end
 
   describe "#column_migration" do
-    let(:attribute_description) { Hash[:type => :string, :options => { null: 'false' }] }
+    describe "without an index" do
+      let(:attribute_description) { Hash[:type => :string, :options => { null: 'false' }] }
 
-    let(:add_column_migration) do <<EOF
+      let(:add_column_migration) do <<EOF
     add_column :some_models, :title, :string, :null => false
 EOF
-    end
+      end
 
-    let(:remove_column_migration) do <<EOF
+      let(:remove_column_migration) do <<EOF
     remove_column :some_models, :title
 EOF
+      end
+
+      let (:column_migration) { migration_builder.column_migration(:some_models, :title, attribute_description) }
+
+      it "builds the correct up migration" do
+        column_migration[:up].should == add_column_migration
+      end
+
+      it "builds the correct down migration" do
+        column_migration[:down].should == remove_column_migration
+      end
     end
 
-    describe "adding a column" do
+    describe "with a single-column index" do
+      let(:attribute_description) { Hash[:type => :string, :options => { :index => :title }] }
+
+      let(:add_column_migration) do <<EOF
+    add_column :some_models, :title, :string
+    add_index :some_models, :title, :name => "some_models_title_index"
+EOF
+      end
+
+      let(:remove_column_migration) do <<EOF
+    remove_column :some_models, :title
+    remove_index :some_models, :name => "some_models_title_index"
+EOF
+      end
+
       let (:column_migration) { migration_builder.column_migration(:some_models, :title, attribute_description) }
 
       it "builds the correct up migration" do
