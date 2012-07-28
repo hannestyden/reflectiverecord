@@ -72,7 +72,7 @@ module ReflectiveRecord
     def join_relation_name(relation_name, options)
       table_name = options[:join_table] || [
         self.name.tableize.to_s,
-        (options[:class_name].tableize.to_s if options[:class_name]) || relation_name.to_s
+        (options[:class_name].to_s.tableize if options[:class_name]) || relation_name.to_s
       ].sort.join('_')
       table_name.to_sym
     end
