@@ -119,6 +119,34 @@ EOF
         column_migration[:down].should == remove_column_migration
       end
     end
+
+    describe "with multiple indexes" do
+      let(:attribute_description) { Hash[:type => :string, :options => { :indexes => [[:title, :another_column], [:some_other_column, :title]] }] }
+
+      let(:add_column_migration) do <<EOF
+    add_column :some_models, :title, :string
+    add_index :some_models, [:title, :another_column], :name => "some_models_title_another_column_index"
+    add_index :some_models, [:some_other_column, :title], :name => "some_models_some_other_column_title_index"
+EOF
+      end
+
+      let(:remove_column_migration) do <<EOF
+    remove_column :some_models, :title
+    remove_index :some_models, :name => "some_models_title_another_column_index"
+    remove_index :some_models, :name => "some_models_some_other_column_title_index"
+EOF
+      end
+
+      let (:column_migration) { migration_builder.column_migration(:some_models, :title, attribute_description) }
+
+      it "builds the correct up migration" do
+        column_migration[:up].should == add_column_migration
+      end
+
+      it "builds the correct down migration" do
+        column_migration[:down].should == remove_column_migration
+      end
+    end
   end
 
   describe "#migration_class_definition" do
