@@ -73,26 +73,20 @@ module ReflectiveRecord
     end
 
     def add_column_instruction(table_name, attribute_name, attribute_description)
-      formatted_options = format_options attribute_description[:options].except(:index, :indexes)
+      formatted_options = format_options attribute_description[:options]
       instruction = "    add_column :#{table_name}, :#{attribute_name}, :#{attribute_description[:type]}#{formatted_options}\n"
-      indexes_from_options(attribute_description[:options]).each do |index|
-        instruction += add_index_instruction(table_name, index)
-      end
+      # indexes_from_options(attribute_description[:options]).each do |index|
+      #   instruction += add_index_instruction(table_name, index)
+      # end
       instruction
     end
 
     def remove_column_instruction(table_name, attribute_name, attribute_description)
       instruction = "    remove_column :#{table_name}, :#{attribute_name}\n"
-      indexes_from_options(attribute_description[:options]).each do |index|
-        instruction += remove_index_instruction(table_name, index)
-      end
+      # indexes_from_options(attribute_description[:options]).each do |index|
+      #   instruction += remove_index_instruction(table_name, index)
+      # end
       instruction
-    end
-
-    def indexes_from_options(options)
-      indexes = options[:indexes] || []
-      indexes += [options[:index]] if options[:index]
-      indexes
     end
 
     def add_index_instruction(table_name, index_definition)
