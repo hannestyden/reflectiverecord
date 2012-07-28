@@ -14,6 +14,7 @@ module ReflectiveRecord
 
     def attribute(attribute_name, type, options={})
       handle_validation_option attribute_name, options.delete(:validates)
+      handle_index_options attribute_name, [[options.delete(:index)], options.delete(:indexes)].flatten.compact
       reflective_attributes = instance_variable_get(:@reflective_attributes) || {}
       reflective_attributes[attribute_name] = { type: type, options: stringify_options(options) }
       instance_variable_set :@reflective_attributes, reflective_attributes
@@ -29,9 +30,17 @@ module ReflectiveRecord
 
     def belongs_to(model_name, options={})
       handle_validation_option model_name, options.delete(:validates)
-      foreign_key = options[:foreign_key] || :"#{model_name}_id"
-      attribute foreign_key, :integer
-      attribute :"#{model_name}_type", :string if options[:polymorphic] == true
+      foreign_key = (options[:foreign_key] || "#{model_name}_id").to_sym
+      indexes = [[options.delete(:index)], options.delete(:indexes)].flatten.compact
+      attribute_options = indexes.present? ? { indexes: indexes } : {}
+      if options[:polymorphic]
+        attribute foreign_key, :integer, attribute_options
+        attribute :"#{model_name}_type", :string
+        add_index self.model_name.to_s.tableize, [foreign_key, :"#{model_name}_type"]
+      else
+        attribute foreign_key, :integer, attribute_options
+        add_index self.model_name.to_s.tableize, foreign_key
+      end
       super model_name, options
     end
 
@@ -65,8 +74,21 @@ module ReflectiveRecord
 
     private
 
+    def add_index(table_name, index_definition)
+      reflective_indexes = ActiveRecord::Base.instance_variable_get(:@reflective_indexes) || {}
+      reflective_indexes[table_name.to_sym] ||= []
+      reflective_indexes[table_name.to_sym] << index_definition
+      ActiveRecord::Base.instance_variable_set :@reflective_indexes, reflective_indexes
+    end
+
     def handle_validation_option(name, validations)
       validates name, validations if validations
+    end
+
+    def handle_index_options(attribute_name, indexes)
+      indexes.map{ |index| index == true ? attribute_name : index }.each do |index|
+        add_index self.model_name.to_s.tableize, index
+      end
     end
 
     def join_relation_name(relation_name, options)

@@ -31,6 +31,7 @@ describe ReflectiveRecord::Extensions do
   let(:validation_container)  { ExtensionsTestModel.instance_variable_get(:@validation_container) }
   let(:reflective_attributes) { ExtensionsTestModel.instance_variable_get(:@reflective_attributes) }
   let(:reflective_joins)      { ActiveRecord::Base.instance_variable_get(:@reflective_joins) }
+  let(:reflective_indexes)    { ActiveRecord::Base.instance_variable_get(:@reflective_indexes) }
 
   after :all do
     ActiveRecord::Base.instance_variable_set :@reflective_joins, {}
@@ -102,6 +103,10 @@ describe ReflectiveRecord::Extensions do
 
   it "ignores options with belongs_to relationships" do
     reflective_attributes[:associated_id][:options].should be_empty
+  end
+
+  it "adds indexes with belongs_to relationships" do
+    reflective_indexes[:extensions_test_models].should =~ [:associated_id, [:polymorphic_id, :polymorphic_type]]
   end
 
   it "includes the right number of attributes" do
