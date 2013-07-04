@@ -54,12 +54,12 @@ module ReflectiveRecord
       super name, scope, options, &extension
     end
 
-    def has_and_belongs_to_many(relation_name, options={}, &extension)
+    def has_and_belongs_to_many(relation_name, scope = nil, options={}, &extension)
       handle_validation_option relation_name, options.delete(:validates)
       reflective_joins = ActiveRecord::Base.instance_variable_get(:@reflective_joins) || {}
       reflective_joins[join_relation_name(relation_name, options)] ||= join_relation_attributes(relation_name, options)
       ActiveRecord::Base.instance_variable_set :@reflective_joins, reflective_joins
-      super relation_name, options, &extension
+      super relation_name, scope, options, &extension
     end
 
     def serialize(attribute_name, class_name = Object, options={})
