@@ -49,9 +49,9 @@ module ReflectiveRecord
       super name, options
     end
 
-    def has_many(name, options={}, &extension)
+    def has_many(name, scope = nil, options={}, &extension)
       handle_validation_option name, options.delete(:validates)
-      super name, options, &extension
+      super name, scope, options, &extension
     end
 
     def has_and_belongs_to_many(relation_name, options={}, &extension)
