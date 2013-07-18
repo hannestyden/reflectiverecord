@@ -67,7 +67,7 @@ module ReflectiveRecord
       super attribute_name, class_name
     end
 
-    def has_secure_password
+    def has_secure_password(options = {})
       attribute :password_digest, :string
       super
     end
